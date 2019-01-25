@@ -8,8 +8,7 @@ class SearchType extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = {value: 'react'};
-
+        this.state = {value: 'arizona'};
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
     }
@@ -29,8 +28,8 @@ class SearchType extends React.Component {
                 <div className="form-group mx-sm-3 mb-2">
                 <input className="form-control" type="text" placeholder="Enter Search Term" onChange={this.handleChange} />
                 &nbsp;<input className="btn btn-primary mb-2" type="submit" value="Submit" />
-                </div>
-                <p>Showing articles related to {this.state.value}.</p>
+                </div> 
+                <h3 className="text-info">Showing articles related to "{this.state.value}."</h3>
                 <NewsAPI searchTerm={this.state.value} />
             </form>
         );
@@ -45,24 +44,26 @@ class NewsAPI extends React.Component {
     }
   
     componentDidMount() {
-        var fullURL = NEWSAPIURL + '?q=' + this.props.searchTerm + '&apiKey=' + NEWSAPIKEY;
+        var fullURL = `${NEWSAPIURL}?q=${this.props.searchTerm}&apiKey=${NEWSAPIKEY}`;
         console.log(fullURL);
         fetch(fullURL)
             .then(response => response.json())
-            .then(data => this.setState({ articles: data.articles }));
+            .then(data => this.setState({articles: data.articles}));
     }
   
     render() {
-      const {articles} = this.state;
-  
+      const {articles} = this.state; 
       return (
         <div className="row">
             {articles.map((article, index) =>
-                <div className="col-md-4" key={index}>
-                    <h3>{article.title}</h3>
+                <article className="col-md-4" key={index}>
+                    <div className="articleImage">
+                        <img src={article.urlToImage} alt="" />
+                    </div>
+                    <h3 className="text-info">{article.title}</h3>
                     <p>{article.description}</p>
-                    <p><a className="btn btn-default" href={article.url} target="_blank" role="button">Read Story »</a></p>
-                </div>
+                    <p><a className="btn btn-info" href={article.url} target="_blank" role="button">Read Story »</a></p>
+                </article>
             )}
         </div>
       );
