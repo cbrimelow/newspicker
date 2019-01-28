@@ -1,77 +1,66 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 
-const NEWSAPIURL = 'https://newsapi.org/v2/everything';
-const NEWSAPIKEY = '18a2cbdecf3c431faa01de0278ef6e86';
-
-class SearchType extends React.Component {
-
-    constructor(props) {
-        super(props);
-        this.state = {value: 'arizona'};
-        this.handleChange = this.handleChange.bind(this);
-        this.handleSubmit = this.handleSubmit.bind(this);
-    }
-  
-    handleChange(event) {
-        this.setState({value: event.target.value});
-    }
-  
-    handleSubmit(event) {
-        //alert('A name was submitted: ' + this.state.value);
-        event.preventDefault();
-    }
-  
-    render() {
-        return (
-            <form className="form-inline" onSubmit={this.handleSubmit}>
-                <div className="form-group mx-sm-3 mb-2">
-                <input className="form-control" type="text" placeholder="Enter Search Term" onChange={this.handleChange} />
-                &nbsp;<input className="btn btn-primary mb-2" type="submit" value="Submit" />
-                </div> 
-                <h3 className="text-info">Showing articles related to "{this.state.value}."</h3>
-                <NewsAPI searchTerm={this.state.value} />
-            </form>
-        );
-    }
-}
-
 class NewsAPI extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = {articles: []};
+        this.state = {
+            searchTerm: '',
+            articles: []
+        };
+        this.searchText= '';
     }
-  
-    componentDidMount() {
-        var fullURL = `${NEWSAPIURL}?q=${this.props.searchTerm}&apiKey=${NEWSAPIKEY}`;
-        console.log(fullURL);
-        fetch(fullURL)
-            .then(response => response.json())
-            .then(data => this.setState({articles: data.articles}));
+    
+    updateTerm = (e) => {
+        this.setState({ searchTerm: e.target.value });
     }
-  
+    
+    getStories = (e) => {
+        e.preventDefault();
+        const NEWSAPIKEY = '18a2cbdecf3c431faa01de0278ef6e86';
+        const NEWSAPIURL = `https://newsapi.org/v2/everything?q=${this.state.searchTerm}&apiKey=${NEWSAPIKEY}`;
+        
+        this.searchText = `Showing articles related to ${this.state.searchTerm}`;
+        fetch(NEWSAPIURL)
+        .then(r => r.json())
+        .then(data => this.setState({ searchTerm: '', 
+            articles: data.articles 
+        }))
+        .catch(e => this.searchText = `Error: ${e}`);
+    }
+    
     render() {
-      const {articles} = this.state; 
-      return (
-        <div className="row">
-            {articles.map((article, index) =>
-                <article className="col-md-4" key={index}>
-                    <div className="articleImage">
-                        <img src={article.urlToImage} alt="" />
-                    </div>
-                    <h3 className="text-info">{article.title}</h3>
-                    <p>{article.description}</p>
-                    <p><a className="btn btn-info" href={article.url} target="_blank" role="button">Read Story »</a></p>
-                </article>
-            )}
-        </div>
-      );
-    }
+        const {articles} = this.state;
+        return (
+            <div id="main">
+                <div className="form-group mx-sm-3 mb-2">
+                    <form className="form-inline" onSubmit={this.getStories}>
+                      <input className="form-control" placeholder="Enter Search Term" onChange={this.updateTerm} />
+                      &nbsp;<input className="btn btn-primary mb-2" type="submit" value="Submit" />
+                    </form>
+                    <h3 className="text-info">{this.searchText}</h3>
+                </div>
+                <div className="row">
+                    {articles.map((article, index) =>
+                        <article className="col-xs-12" key={index}>
+                            <div className="col-xs-12 col-sm-3 articleImage">
+                                <a href={article.url} target="_blank"><img src={article.urlToImage} alt="" /></a>
+                            </div>
+                            <div className="col-xs-12 col-sm-9">
+                            <h4 className="text-info"><a href={article.url} target="_blank">{article.title}</a></h4>
+                            <p>{article.description} <a className="text-info" href={article.url} target="_blank">Read More »</a></p>
+                            </div>
+                        </article>
+                    )}
+                </div>            
+            </div>
+        );
+    } 
   
 }
 
 ReactDOM.render(
-    <SearchType />,
+    <NewsAPI />,
     document.getElementById('root')
 )

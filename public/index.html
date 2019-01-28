@@ -30,23 +30,33 @@
     <noscript>You need to enable JavaScript to run this app.</noscript>
 
     <style>
+        .form-control {
+            width: auto !important;
+            display: inline-block !important;
+        }
     article {
-      min-height: 480px !important;
       margin-bottom: 20px;
-    }
-    .articleImage {
-      height: 200px;
-      overflow: hidden;
-    }
+    }  
     .articleImage img {
       width: 100%;
     }
+    h3.text-info {
+        margin: 20px 0 40px;
+    }
+    h4.text-info {
+        margin-top: 0;
+    }
+        @media (max-width: 768px) {
+            h4.text-info {
+                margin-top: 10px;
+            }
+        }
     </style>
 
     <div class="jumbotron">
         <div class="container">
           <h1>News Picker</h1>
-          <p>This news picker uses React to import and parse JSON data from a news API.</p>
+          <p>This news picker uses React to import and parse JSON data from a news API. Enter a search term and click the submit button to retrieve news stories related to that term.</p>
         </div>
       </div>
 
