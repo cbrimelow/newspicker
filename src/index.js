@@ -4,10 +4,10 @@ import ReactDOM from 'react-dom'
   const NewsForm = (props) => {
       return (
         <div className="form-group mx-sm-3 mb-2">
-            <form className="form-inline" onSubmit={props.getStories}>
+            <div id="searchForm" className="form-inline">
               <input className="form-control" placeholder="Enter Search Term" onChange={props.updateTerm} />
-              &nbsp;<input className="btn btn-primary mb-2" type="submit" value="Submit" />
-            </form>
+              &nbsp;<input className="btn btn-primary mb-2" type="submit" value="Submit" onClick={props.getStories} />
+            </div>
             <h3 className="text-info">{props.searchText}</h3>
         </div>      
       )
@@ -19,6 +19,7 @@ class NewsAPI extends React.Component {
         super(props);
         this.state = {
             searchTerm: '',
+            searchPage: 1,
             articles: []
         };
         this.searchText= '';
@@ -28,12 +29,22 @@ class NewsAPI extends React.Component {
         this.setState({ searchTerm: e.target.value });
     }
     
+    loadMore = () => {
+        let newPage = this.state.searchPage + 1;
+        this.setState({ searchPage: newPage });
+        this.getStories();
+    }
+    
     getStories = (e) => {
-        e.preventDefault();
+        
+        //alert(this.state.searchTerm);
+
         const NEWSAPIKEY = '18a2cbdecf3c431faa01de0278ef6e86';
-        const NEWSAPIURL = `https://newsapi.org/v2/everything?q=${this.state.searchTerm}&pageSize=100&apiKey=${NEWSAPIKEY}`;
+        const NEWSAPIURL = `https://newsapi.org/v2/everything?q=${this.state.searchTerm}&pageSize=10&page=${this.state.searchPage}&apiKey=${NEWSAPIKEY}`;
         
         this.searchText = `Showing articles related to "${this.state.searchTerm}."`;
+        
+        console.log(NEWSAPIURL);
         
         fetch(NEWSAPIURL)
         .then(r => r.json())
@@ -42,8 +53,6 @@ class NewsAPI extends React.Component {
         }))
         .catch(e => this.searchText = `Error: ${e}`);
     }
-    
-    /*<NewsForm getStories={this.getStories} updateTerm={this.updateTerm} searchText={this.searchText} />*/
     
     render() {
         const {articles} = this.state;
@@ -64,7 +73,10 @@ class NewsAPI extends React.Component {
                             </div>
                         </article>
                     )}
-                </div>            
+                </div>
+                <div className="row">
+                    <div className="col-xs-12" id="loadmore" onClick={this.loadMore}>Load More Stories</div>
+                </div>    
             </div>
         );
     } 
