@@ -1,17 +1,17 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 
-  const NewsForm = (props) => {
-      return (
+const NewsForm = (props) => {
+    return (
         <div className="form-group mx-sm-3 mb-2">
             <div id="searchForm" className="form-inline">
-              <input className="form-control" placeholder="Enter Search Term" onChange={props.updateTerm} />
-              &nbsp;<input className="btn btn-primary mb-2" type="submit" value="Submit" onClick={props.getStories} />
+                <input onChange={props.updateTerm} className="form-control" placeholder="Enter Search Term" />&nbsp;
+                <input onClick={props.getStories} className="btn btn-primary mb-2" type="submit" value="Submit" />
             </div>
             <h3 className="text-info">{props.searchText}</h3>
         </div>      
-      )
-  }
+    )
+}
 
 class NewsAPI extends React.Component {
 
@@ -19,46 +19,66 @@ class NewsAPI extends React.Component {
         super(props);
         this.state = {
             searchTerm: '',
+            searchTermChanged: false,
             searchPage: 1,
+            searchText: '',
             articles: []
         };
-        this.searchText= '';
     }
     
     updateTerm = (e) => {
-        this.setState({ searchTerm: e.target.value });
+        this.setState({ searchTerm: e.target.value, searchPage: 1, searchTermChanged: true });
     }
     
-    loadMore = () => {
-        let newPage = this.state.searchPage + 1;
-        this.setState({ searchPage: newPage });
-        this.getStories();
-    }
-    
-    getStories = (e) => {
+    getStories = () => {
         
-        //alert(this.state.searchTerm);
-
         const NEWSAPIKEY = '18a2cbdecf3c431faa01de0278ef6e86';
         const NEWSAPIURL = `https://newsapi.org/v2/everything?q=${this.state.searchTerm}&pageSize=10&page=${this.state.searchPage}&apiKey=${NEWSAPIKEY}`;
         
-        this.searchText = `Showing articles related to "${this.state.searchTerm}."`;
-        
-        console.log(NEWSAPIURL);
-        
         fetch(NEWSAPIURL)
         .then(r => r.json())
-        .then(data => this.setState({ searchTerm: '', 
-            articles: data.articles 
-        }))
-        .catch(e => this.searchText = `Error: ${e}`);
+        .then(data => {  
+
+            if (this.state.searchTermChanged) {
+                this.setState({articles: []});
+            }
+
+            let newArticleList = [];
+            let existingArticles = this.state.articles;
+            let newArticles = data.articles;
+            
+            if (!Array.isArray(existingArticles) || !existingArticles.length) {
+                newArticleList = newArticles;
+            } else {
+                newArticleList.concat(existingArticles);
+                newArticleList.concat(newArticles);
+            }
+
+            console.log('New data: ' + NEWSAPIURL);
+
+            return (
+                this.setState({ 
+                    searchText: `Showing articles related to "${this.state.searchTerm}."`,
+                    articles: newArticleList 
+                })
+            )
+        })
+        .catch(e => this.setState({searchText: `Error: ${e}`}));
+    }
+   
+    loadMore = () => {
+        let newPage = this.state.searchPage;
+        newPage = newPage + 1;
+        this.setState({ searchPage: newPage });
+        console.log('New page: ' + this.state.searchPage);
+        this.getStories();
     }
     
     render() {
         const {articles} = this.state;
         return (
             <div id="main">
-                <NewsForm getStories={this.getStories} updateTerm={this.updateTerm} searchText={this.searchText} />
+                <NewsForm getStories={this.getStories} updateTerm={this.updateTerm} searchText={this.state.searchText} />
                 <div className="row">
                     {articles.map((article, index) =>
                         <article className="col-xs-12" key={index}>
