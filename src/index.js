@@ -9,7 +9,7 @@ const NewsForm = (props) => {
                 <input onChange={props.updateTerm} className="form-control" placeholder="Enter Search Term" />&nbsp;
                 <input onClick={props.getStories} className="submitButton" type="submit" value="Submit" />
             </div>
-            <h4>{props.searchText}</h4>
+            <h4 className="searchText">{props.searchText}</h4>
         </div>      
     )
     
@@ -68,15 +68,8 @@ class NewsAPI extends React.Component {
         const NEWSAPIURL = `https://newsapi.org/v2/everything?q=${this.state.searchTerm}&pageSize=10&page=${this.state.searchPage}&apiKey=${NEWSAPIKEY}`;
         
         let existingArticles = this.state.articles;
-        
-        /*
-        console.log(this.state.searchTermChanged);
-        
-        if (this.state.searchTermChanged) {
-            this.setState({articles: []});
-        }
-        */
-        
+        console.log(NEWSAPIURL);
+                
         fetch(NEWSAPIURL)
         .then(r => r.json())
         
@@ -85,8 +78,8 @@ class NewsAPI extends React.Component {
             let newArticleList = [];          
             let newArticles = data.articles;
             
-            if (!Array.isArray(existingArticles) || !existingArticles.length) { 
-                //if first fetch
+            if (!existingArticles.length || this.state.searchTermChanged) { 
+                //if first fetch or if new search term
                 newArticleList = newArticles;
             } else { 
                 //if there are already articles, add new ones
@@ -110,7 +103,7 @@ class NewsAPI extends React.Component {
         let currPage = this.state.searchPage;
         let newPage = currPage + 1;
         
-        this.setState({searchPage: newPage}, () => {
+        this.setState({searchPage: newPage, searchTermChanged: false}, () => {
             this.getStories();
         });
         
@@ -126,14 +119,14 @@ class NewsAPI extends React.Component {
                 <div className="row">
                     {theArticles.map((article, index) =>
                         <article className="col-xs-12" key={index}>
-                            <div className="col-xs-12 col-sm-3 articleImage">
+                            <div className="col-xs-12 col-sm-4 articleImage">
                                 <a href={article.url} rel="noopener noreferrer" target="_blank"><img src={article.urlToImage} alt="" /></a>
                             </div>
-                            <div className="col-xs-12 col-sm-9">
-                            <h4><a href={article.url} rel="noopener noreferrer" target="_blank">{article.title}</a></h4>
+                            <div className="col-xs-12 col-sm-8">
+                            <h3><a href={article.url} rel="noopener noreferrer" target="_blank">{article.title}</a></h3>
                             <p><em>{article.author}</em></p>
                             <p>{article.description}</p> 
-                            <a className="text-info" href={article.url} rel="noopener noreferrer" target="_blank">&raquo; Read More</a>
+                            <a className="readMore" href={article.url} rel="noopener noreferrer" target="_blank">&raquo; Read More</a>
                             </div>
                         </article>
                     )}
