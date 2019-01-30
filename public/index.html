@@ -25,11 +25,31 @@
     <title>News Picker</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+      <link href="https://fonts.googleapis.com/css?family=Open+Sans|Raleway" rel="stylesheet">
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
 
     <style>
+        body {font-family: 'Open Sans', sans-serif;}
+        .topnav {
+            padding: 8px;
+            background-color: #55564e;
+            color: #ddf85e;
+            font-family: 'Raleway', sans-serif;
+        }
+        .main {
+            margin: 40px 0;
+        }
+        .submitButton {
+            padding: 8px 20px;
+            background-color: #55564e;
+            color: #ddf85e;
+            text-transform: uppercase;
+            border: 0;
+            font-size: 12px;
+            font-family: 'Raleway', sans-serif;
+        }
         .form-control {
             width: auto !important;
             display: inline-block !important;
@@ -53,6 +73,10 @@
         #loadmore {
             text-align: center;
             cursor: pointer;
+            background-color: #f1f1f1;
+            color: #aaa;
+            padding: 10px;
+            text-transform: uppercase;
         }
         @media (max-width: 768px) {
             article h4.text-info {
@@ -61,23 +85,29 @@
         }
     </style>
 
-    <div class="jumbotron">
+    <div class="topnav">
         <div class="container">
-          <h1>News Picker</h1>
-          <p>This news picker uses React to import and parse JSON data from a news API. Enter a search term and click the submit button to retrieve news stories related to that term.</p>
+            <div class="col-xs-12">
+                <h4>News Picker</h4>
+            </div>
         </div>
       </div>
 
-      <div class="container">
-         
-          <div id="root"></div>
-    
-          <hr>
-    
-          <footer>
-            <p>© 2019 Chris Brimelow</p>
-          </footer>
+    <div class="main">
+        <div class="container">
+            <div id="root"></div>
+            <hr>
         </div>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <div class="col-xs-12">
+                <p>© 2019 Chris Brimelow</p>
+            </div>
+        </div>
+    </footer>
+
 
 
     

@@ -2,21 +2,44 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 
 const NewsForm = (props) => {
+    
     return (
         <div className="form-group mx-sm-3 mb-2">
             <div id="searchForm" className="form-inline">
                 <input onChange={props.updateTerm} className="form-control" placeholder="Enter Search Term" />&nbsp;
-                <input onClick={props.getStories} className="btn btn-primary mb-2" type="submit" value="Submit" />
+                <input onClick={props.getStories} className="submitButton" type="submit" value="Submit" />
             </div>
-            <h3 className="text-info">{props.searchText}</h3>
+            <h4>{props.searchText}</h4>
         </div>      
     )
+    
+}
+
+const LoadMoreButton = (props) => {
+    
+    if (props.articles.length) {
+        //If articles, show button
+        return (
+            <div className="row">
+                <div className="col-xs-12">
+                    <div id="loadmore" onClick={props.loadMore}>Load More Stories</div>
+                </div>
+            </div>         
+        )
+        
+    } else {
+        //If no articles, don't show button
+        return null;
+        
+    }
 }
 
 class NewsAPI extends React.Component {
 
     constructor(props) {
+        
         super(props);
+        
         this.state = {
             searchTerm: '',
             searchTermChanged: false,
@@ -24,10 +47,19 @@ class NewsAPI extends React.Component {
             searchText: '',
             articles: []
         };
+        
     }
     
     updateTerm = (e) => {
-        this.setState({ searchTerm: e.target.value, searchPage: 1, searchTermChanged: true });
+        
+        let searchTermChanged = false;
+        
+        if (this.state.searchText !== '') {
+            searchTermChanged = true;
+        }
+        
+        this.setState({ searchTerm: e.target.value, searchPage: 1, searchTermChanged: searchTermChanged });
+        
     }
     
     getStories = () => {
@@ -35,26 +67,31 @@ class NewsAPI extends React.Component {
         const NEWSAPIKEY = '18a2cbdecf3c431faa01de0278ef6e86';
         const NEWSAPIURL = `https://newsapi.org/v2/everything?q=${this.state.searchTerm}&pageSize=10&page=${this.state.searchPage}&apiKey=${NEWSAPIKEY}`;
         
+        let existingArticles = this.state.articles;
+        
+        /*
+        console.log(this.state.searchTermChanged);
+        
+        if (this.state.searchTermChanged) {
+            this.setState({articles: []});
+        }
+        */
+        
         fetch(NEWSAPIURL)
         .then(r => r.json())
+        
         .then(data => {  
 
-            if (this.state.searchTermChanged) {
-                this.setState({articles: []});
-            }
-
-            let newArticleList = [];
-            let existingArticles = this.state.articles;
+            let newArticleList = [];          
             let newArticles = data.articles;
             
-            if (!Array.isArray(existingArticles) || !existingArticles.length) {
+            if (!Array.isArray(existingArticles) || !existingArticles.length) { 
+                //if first fetch
                 newArticleList = newArticles;
-            } else {
-                newArticleList.concat(existingArticles);
-                newArticleList.concat(newArticles);
+            } else { 
+                //if there are already articles, add new ones
+                newArticleList = existingArticles.concat(newArticles);
             }
-
-            console.log('New data: ' + NEWSAPIURL);
 
             return (
                 this.setState({ 
@@ -62,31 +99,38 @@ class NewsAPI extends React.Component {
                     articles: newArticleList 
                 })
             )
+            
         })
+        
         .catch(e => this.setState({searchText: `Error: ${e}`}));
     }
    
     loadMore = () => {
-        let newPage = this.state.searchPage;
-        newPage = newPage + 1;
-        this.setState({ searchPage: newPage });
-        console.log('New page: ' + this.state.searchPage);
-        this.getStories();
+        
+        let currPage = this.state.searchPage;
+        let newPage = currPage + 1;
+        
+        this.setState({searchPage: newPage}, () => {
+            this.getStories();
+        });
+        
     }
     
     render() {
-        const {articles} = this.state;
+        
+        const theArticles = this.state.articles;
+        
         return (
             <div id="main">
                 <NewsForm getStories={this.getStories} updateTerm={this.updateTerm} searchText={this.state.searchText} />
                 <div className="row">
-                    {articles.map((article, index) =>
+                    {theArticles.map((article, index) =>
                         <article className="col-xs-12" key={index}>
                             <div className="col-xs-12 col-sm-3 articleImage">
                                 <a href={article.url} rel="noopener noreferrer" target="_blank"><img src={article.urlToImage} alt="" /></a>
                             </div>
                             <div className="col-xs-12 col-sm-9">
-                            <h4 className="text-info"><a href={article.url} rel="noopener noreferrer" target="_blank">{article.title}</a></h4>
+                            <h4><a href={article.url} rel="noopener noreferrer" target="_blank">{article.title}</a></h4>
                             <p><em>{article.author}</em></p>
                             <p>{article.description}</p> 
                             <a className="text-info" href={article.url} rel="noopener noreferrer" target="_blank">&raquo; Read More</a>
@@ -94,11 +138,10 @@ class NewsAPI extends React.Component {
                         </article>
                     )}
                 </div>
-                <div className="row">
-                    <div className="col-xs-12" id="loadmore" onClick={this.loadMore}>Load More Stories</div>
-                </div>    
+                <LoadMoreButton loadMore={this.loadMore} articles={this.state.articles} />
             </div>
         );
+
     } 
   
 }
