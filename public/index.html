@@ -56,18 +56,48 @@
     .main {
         margin: 40px 0;
     }
+    #searchForm .form-control {
+      border-radius: 0;
+      display: inline-block;
+      margin-right: 6px;
+    }
     .searchText {
       color: #fff;
+      margin-top: 20px;
+      margin-bottom: 20px;  
     }
-    .submitButton {
+    .highlight {
+      color: #ddf85e;
+    }
+    #searchForm .submitButton {
         padding: 8px 20px;
+        margin-left: -2px;
         background-color: #333;
         color: #ddf85e;
         text-transform: uppercase;
         border: 1px solid #ddf85e;
         font-size: 12px;
         font-family: 'Raleway', sans-serif;
-        border-radius: 4px;
+        -webkit-transition: background .5s;
+        transition: background .5s;
+    }
+    #searchForm .submitButton:hover {
+      background-color: #666;
+    }
+    #loadmore {
+        text-align: center;
+        cursor: pointer;
+        border: 1px solid #ddf85e;
+        background-color: #333;
+        color: #ddf85e;
+        padding: 10px;
+        text-transform: uppercase;
+        margin-top: 20px;
+        -webkit-transition: background .5s;
+        transition: background .5s;
+    }
+    #loadmore:hover {
+      background-color: #666;
     }
     .form-control {
         width: auto !important;
@@ -79,6 +109,7 @@
       padding-top: 20px; 
       padding-bottom: 20px;
       padding-left: 0 !important;
+      height: 250px;
     }  
     .articleImage {
       padding-left: 0;
@@ -86,7 +117,6 @@
     .articleImage img {
       width: 100%;
       border: 1px solid #ccc;
-      border-radius: 4px;
     }
     article h3 {
         margin: 0 0 10px;
@@ -104,31 +134,26 @@
       display: block;
       margin-top: 10px;
     }
-    #loadmore {
-        text-align: center;
-        cursor: pointer;
-        border: 1px solid #ccc;
-        background: #797979;
-        color: #ddf85e;
-        padding: 10px;
-        text-transform: uppercase;
-        margin-top: 20px;
-        border-radius: 4px;
-        -webkit-transition: background .5s;
-        transition: background .5s;
-    }
-    #loadmore:hover {
-      background: #333;
+    article .noPhoto {
+      border: 1px solid #ccc;
+      background-color: #333;
+      color: #ddf85e;
+      width: 100%;
+      padding: 40px;
+      text-align: center;
     }
     footer {
       color: #ccc;
     }
     @media (max-width: 768px) {
-        article h3 {
-            margin-top: 10px;
-        }
+      article h3 {
+          margin-top: 10px;
+      }
       .articleImage {
         padding-left: 15px;
+      }
+      article {
+        height: auto;
       }
     }
     </style>
