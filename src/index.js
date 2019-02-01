@@ -7,7 +7,7 @@ const NewsForm = (props) => {
         <div className="form-group mx-sm-3 mb-2">
             <div id="searchForm" className="form-inline">
                 <input onChange={props.updateTerm} className="form-control" placeholder="Enter Search Term" />
-                <input onClick={props.getStories} className="submitButton" type="submit" value="Submit" />
+                <input onClick={props.checkTerm} className="submitButton" type="submit" value="Submit" />
             </div>
             <h4 className="searchText">{props.searchText}</h4>
         </div>      
@@ -17,7 +17,7 @@ const NewsForm = (props) => {
 
 const LoadMoreButton = (props) => {
     
-    if (props.articles.length) {
+    if (props.articles.length && !props.lastPage) {
         //If articles, show button
         return (
             <div className="row">
@@ -25,44 +25,44 @@ const LoadMoreButton = (props) => {
                     <div id="loadmore" onClick={props.loadMore}>Load More Stories</div>
                 </div>
             </div>         
-        )
-        
+        )       
     } else {
         //If no articles, don't show button
-        return null;
-        
+        return null;       
     }
+
+}
+
+const convertTime = (time) => {
+    let theNewTime = (new Date(time)).toDateString();
+    return theNewTime;
+}
+
+const convertNumber = (num) => {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
 const ArticleMarkup = (props) => {
 
     const theArticles = props.articles;
-    /*
-    const theMarkup = theArticles.map((article, index) => (
-        <div key={index}>
-            <h1>{article.publishedAt}</h1>
-        </div>
-        )
-    );
-    */
+
     return (
         <div className="row">
             {theArticles.map((article, index) =>
-                <article className="col-xs-12 col-md-6" key={index}>
-                    <div className="col-xs-12 col-sm-4 articleImage">
-                        
-                    {article.urlToImage ?
-                        <a href={article.url} rel="noopener noreferrer" target="_blank"><img src={article.urlToImage} alt="" /></a>
-                        :
-                        <div className="noPhoto">No Photo Available</div>
-                    }
-                    </div>
-                    <div className="col-xs-12 col-sm-8">
-                    <h3><a href={article.url} rel="noopener noreferrer" target="_blank">{article.title}</a></h3>
-                    <p><em>{article.author}</em></p>
-                    <p>{article.publishedAt}</p>
-                    <p>{article.description}</p> 
-                    <a className="readMore" href={article.url} rel="noopener noreferrer" target="_blank">&raquo; Read More</a>
+                <article className="col-xs-12" key={index}>
+                    <div className="col-xs-12 col-sm-4 articleImage">                       
+                        {article.urlToImage ?
+                            <a href={article.url} rel="noopener noreferrer" target="_blank"><img src={article.urlToImage} alt="" /></a>
+                            :
+                            <div className="noPhoto">No Photo Available</div>
+                        }
+                        </div>
+                        <div className="col-xs-12 col-sm-8">
+                        <h3><a href={article.url} rel="noopener noreferrer" target="_blank">{article.title}</a></h3>
+                        <p>{article.source.name} <em>{article.author}</em></p>
+                        <p>{convertTime(article.publishedAt)}</p>
+                        <p className="articleDesc">{article.description}</p> 
+                        <a className="readMore" href={article.url} rel="noopener noreferrer" target="_blank">&raquo; Read More</a>
                     </div>
                 </article>
             )}
@@ -73,14 +73,14 @@ const ArticleMarkup = (props) => {
 
 class NewsAPI extends React.Component {
 
-    constructor(props) {
-        
+    constructor(props) {       
         super(props);
         
         this.state = {
             searchTerm: '',
             searchTermChanged: false,
             searchPage: 1,
+            lastPage: false,
             searchText: '',
             articles: []
         };
@@ -99,13 +99,23 @@ class NewsAPI extends React.Component {
         
     }
     
+    checkTerm = () => {
+        
+        let searchTerm = this.state.searchTerm;
+        
+        if (searchTerm !== '') {
+            this.getStories();
+        } else {
+            this.setState({ searchText: 'Please enter a valid search term.'});
+        }
+        
+    }
+    
     getStories = () => {
         
         const NEWSAPIKEY = '18a2cbdecf3c431faa01de0278ef6e86';
         const NEWSAPIURL = `https://newsapi.org/v2/everything?q=${this.state.searchTerm}&pageSize=10&page=${this.state.searchPage}&apiKey=${NEWSAPIKEY}`;
         const OLDARTICLES = this.state.articles;
-
-        console.log(NEWSAPIURL);
                 
         fetch(NEWSAPIURL)
         .then(r => r.json())
@@ -113,20 +123,30 @@ class NewsAPI extends React.Component {
         .then(data => {  
 
             let newArticleList = []; 
-            let totalArticles = data.totalResults;         
+            let currPage = this.state.searchPage;
+            let totalArticles = data.totalResults; 
+            let totalPages = Math.ceil(totalArticles / 10);  
+            let isLastPage = false;      
             let newArticles = data.articles;
+
+            if (currPage === totalPages) {
+                isLastPage = true;    
+            }
+
+            //console.log(currPage,totalPages,isLastPage);
             
             if (!OLDARTICLES.length || this.state.searchTermChanged) { 
                 //if first fetch or if new search term
                 newArticleList = newArticles;
             } else { 
-                //if there are already articles, add new ones
+                //if there are already articles, add new ones to that list
                 newArticleList = OLDARTICLES.concat(newArticles);
             }
 
             return (
                 this.setState({ 
-                    searchText: `Showing articles related to "${this.state.searchTerm}." Total Results: ${totalArticles}`,
+                    searchText: `Showing articles related to "${this.state.searchTerm}." (${convertNumber(totalArticles)} total results) `,
+                    lastPage: isLastPage,
                     articles: newArticleList 
                 })
             )
@@ -151,9 +171,9 @@ class NewsAPI extends React.Component {
         
         return (
             <div id="main">
-                <NewsForm getStories={this.getStories} updateTerm={this.updateTerm} searchText={this.state.searchText} />
+                <NewsForm checkTerm={this.checkTerm} updateTerm={this.updateTerm} searchText={this.state.searchText} />
                 <ArticleMarkup articles={this.state.articles} />
-                <LoadMoreButton loadMore={this.loadMore} articles={this.state.articles} />
+                <LoadMoreButton loadMore={this.loadMore} articles={this.state.articles} lastPage={this.state.lastPage} />
             </div>
         );
 
