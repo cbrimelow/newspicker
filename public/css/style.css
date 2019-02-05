@@ -32,6 +32,30 @@ body {
       display: inline-block;
       margin-right: 6px;
     }
+    #searchForm label {
+        color: #fff;
+        display: inline-block;
+        margin: 0 8px 0 12px;
+    }
+    #searchForm select {
+        padding: 26px 20px;
+        height: 36px;
+    }
+    /*
+    #searchForm select {
+        padding: 26px 20px;
+        background-color: #333;
+        color: #ddf85e;
+        text-transform: uppercase;
+        border: 1px solid #ddf85e;
+        font-size: 12px;
+        font-family: 'Raleway', sans-serif;
+        -webkit-transition: background .5s;
+        transition: background .5s;
+        border-radius: 0;
+        height: 36px;
+    }
+    */
     .searchText {
       color: #fff;
       margin-top: 20px;

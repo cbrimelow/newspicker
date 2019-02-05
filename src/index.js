@@ -7,7 +7,13 @@ const NewsForm = (props) => {
         <div className="form-group mx-sm-3 mb-2">
             <div id="searchForm" className="form-inline">
                 <input onChange={props.updateTerm} className="form-control" placeholder="Enter Search Term" />
-                <input onClick={props.checkTerm} className="submitButton" type="submit" value="Submit" />
+                <input onClick={props.checkTerm} className="submitButton" type="submit" value="Submit" />           
+                <label>Sort By:</label>
+                <select onChange={props.changeSort} id="sortBy">
+                    <option value="publishedAt">Published Date</option>
+                    <option value="relevancy">Relevancy</option>
+                    <option value="popularity">Popularity</option>
+                </select>
             </div>
             <h4 className="searchText">{props.searchText}</h4>
         </div>      
@@ -82,6 +88,8 @@ class NewsAPI extends React.Component {
             searchPage: 1,
             lastPage: false,
             searchText: '',
+            sortBy: 'publishedAt',
+            sortByChanged: false,
             articles: []
         };
         
@@ -111,11 +119,25 @@ class NewsAPI extends React.Component {
         
     }
     
+    changeSort = (e) => {
+
+        if (this.state.searchTerm !== '') {       
+            this.setState({ sortBy: e.target.value, sortByChanged: true }, () => {
+                this.getStories();
+            });
+        } else {
+            this.setState({ sortBy: e.target.value });            
+        }
+        
+    }
+    
     getStories = () => {
         
         const NEWSAPIKEY = '18a2cbdecf3c431faa01de0278ef6e86';
-        const NEWSAPIURL = `https://newsapi.org/v2/everything?q=${this.state.searchTerm}&pageSize=10&page=${this.state.searchPage}&apiKey=${NEWSAPIKEY}`;
+        const NEWSAPIURL = `https://newsapi.org/v2/everything?q=${this.state.searchTerm}&pageSize=10&page=${this.state.searchPage}&sortBy=${this.state.sortBy}&apiKey=${NEWSAPIKEY}`;
         const OLDARTICLES = this.state.articles;
+
+        //console.log(NEWSAPIURL);
                 
         fetch(NEWSAPIURL)
         .then(r => r.json())
@@ -135,8 +157,8 @@ class NewsAPI extends React.Component {
 
             //console.log(currPage,totalPages,isLastPage);
             
-            if (!OLDARTICLES.length || this.state.searchTermChanged) { 
-                //if first fetch or if new search term
+            if (!OLDARTICLES.length || this.state.searchTermChanged || this.state.sortByChanged) { 
+                //if first fetch, if new search term, or if new sort method
                 newArticleList = newArticles;
             } else { 
                 //if there are already articles, add new ones to that list
@@ -161,7 +183,7 @@ class NewsAPI extends React.Component {
         let currPage = this.state.searchPage;
         let newPage = currPage + 1;
         
-        this.setState({searchPage: newPage, searchTermChanged: false}, () => {
+        this.setState({ searchPage: newPage, searchTermChanged: false, sortByChanged: false }, () => {
             this.getStories();
         });
         
@@ -171,7 +193,7 @@ class NewsAPI extends React.Component {
         
         return (
             <div id="main">
-                <NewsForm checkTerm={this.checkTerm} updateTerm={this.updateTerm} searchText={this.state.searchText} />
+                <NewsForm checkTerm={this.checkTerm} updateTerm={this.updateTerm} searchText={this.state.searchText} changeSort={this.changeSort} />
                 <ArticleMarkup articles={this.state.articles} />
                 <LoadMoreButton loadMore={this.loadMore} articles={this.state.articles} lastPage={this.state.lastPage} />
             </div>
@@ -183,5 +205,5 @@ class NewsAPI extends React.Component {
 
 ReactDOM.render(
     <NewsAPI />,
-    document.getElementById('root')
+    document.getElementById('newsAPI')
 )
