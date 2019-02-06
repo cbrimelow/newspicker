@@ -1,3 +1,12 @@
+NEWSPICKER
+
+Live Working Example: http://christopherbrimelow.com/newspicker/
+
+Feed: https://newsapi.org/
+
+Description: 
+This application uses React to parse a news feed based on a search term entered by the user and displays the results. It also loads a new result set if the sort method is changed and also features a load more feature at the bottom. 
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
